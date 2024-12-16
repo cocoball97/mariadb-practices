@@ -12,124 +12,80 @@ import bookmall.vo.CategoryVo;
 
 public class CategoryDao {
 
-	public void insert(CategoryVo vo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
 
-		try {
-			conn = getConnection();
 
-			String sql = " insert" + "   into category" + " values (null, ?, ?)";
-			pstmt = conn.prepareStatement(sql);
-			
-			pstmt.setString(1, vo.getName());
-			
+	public int insert(CategoryVo vo) {
+
+		int count = 0;
+
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt1 = conn.prepareStatement(" insert into category values (null, ?)");
+				PreparedStatement pstmt2 = conn.prepareStatement("select last_insert_id() from dual");
+		) {
+			pstmt1.setString(1, vo.getName());
+			count = pstmt1.executeUpdate();
+
+			ResultSet rs = pstmt2.executeQuery();
+			vo.setNo(rs.next() ? rs.getLong(1) : null);
+			rs.close();
 		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			System.out.println("category error1:" + e);
 		}
+
+		return count;
 	}
-	
-	public void deleteByNo(long no) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
 		
-		try {
-			conn = getConnection();
+	public int deleteByNo(Long no) {
+		int count = 0;
 		
-			String sql =
-				"delete" + 
-				"  from category" +
-				" where no = ?";			
-			pstmt = conn.prepareStatement(sql);
-			
+		try (
+			Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement("delete from category where no = ?");
+		) {
 			pstmt.setLong(1, no);
-			
-			
+			count = pstmt.executeUpdate();
 		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			System.out.println("category error2:" + e);
 		}
-	}
+		
+		return count;	
+	}	
 	
 
 	public List<CategoryVo> findAll() {
 		List<CategoryVo> result = new ArrayList<>();
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
 		
-		try {
-			conn = getConnection();
-			
-			String sql =
-				"select id,name" +
-				"  from category" +
-				" order by id desc";
-			pstmt = conn.prepareStatement(sql);
-			
-			rs = pstmt.executeQuery();
+		try (
+			Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement("select no, name from category order by no desc");
+		) {
+			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
-				Long id = rs.getLong(1);
+				Long no = rs.getLong(1);
 				String name = rs.getString(2);
 				
 				CategoryVo vo = new CategoryVo();
-				vo.setNo(id);
+				vo.setNo(no);
 				vo.setName(name);
 				
 				result.add(vo);
 			}
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if(rs != null) {
-					rs.close();
-				}
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			rs.close();
+		} catch(SQLException e) {
+			System.out.println("category error3:" + e);
 		}
 		
-		return result;		
-	}
+		return result;
+	} 
 	
-	
-
 	private Connection getConnection() throws SQLException {
 		Connection conn = null;
 
 		try {
 			Class.forName("org.mariadb.jdbc.Driver");
 
-			String url = "jdbc:mariadb://192.168.35.57:3306/webdb";
-			conn = DriverManager.getConnection(url, "webdb", "webdb");
+			String url = "jdbc:mariadb://192.168.35.241:3306/bookmall";
+			conn = DriverManager.getConnection(url, "bookmall", "bookmall");
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패:" + e);
 		}

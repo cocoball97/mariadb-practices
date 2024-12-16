@@ -5,8 +5,8 @@ public class CartVo {
 	private String title;
 	private Long quantity;
 	private Long price;
-	private Long bookno;
-	private Long userno;
+	private Long book_no;
+	private Long user_no;
 
 	public CartVo() {
 	}
@@ -19,7 +19,7 @@ public class CartVo {
 		return no;
 	}
 
-	public String getTitle() {
+	public String getBookTitle() {
 		return title;
 	}
 
@@ -32,38 +32,30 @@ public class CartVo {
 	}
 
 	public Long getBookNo() {
-		return bookno;
+		return book_no;
 	}
 
-	public void setBookNo(Long bookno) {
-		this.bookno = bookno;
+	public void setBookNo(Long book_no) {
+		this.book_no = book_no;
 	}
 
 	public Long getUserNo() {
-		return userno;
+		return user_no;
 	}
 
-	public void setUserNo(Long userno) {
-		this.userno = userno;
+	public void setUserNo(Long user_no) {
+		this.user_no = user_no;
 	}
 
 	public void setNo(Long no) {
 		this.no = no;
 	}
 
-	public void setTitle(String title) {
+	public void setBookTitle(String title) {
 		this.title = title;
 	}
-
-	public void setQuantity(Long quantity) {
-		this.quantity = quantity;
-	}
-
 	public void setPrice(Long price) {
 		this.price = price;
 	}
 
-
-	
-	
 }

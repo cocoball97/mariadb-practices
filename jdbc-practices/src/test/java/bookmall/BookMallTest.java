@@ -34,19 +34,19 @@ public class BookMallTest {
 	private static CategoryVo mockCategoryVo01 = new CategoryVo("인문");
 	private static CategoryVo mockCategoryVo02 = new CategoryVo("컴퓨터/IT");
 	private static CategoryVo mockCategoryVo03 = new CategoryVo("예술");
-	
+
 	private static BookVo mockBookVo01 = new BookVo("과학혁명의 구조", 20000);
 	private static BookVo mockBookVo02 = new BookVo("J2EE Development Without EJB", 32000);
 	private static BookVo mockBookVo03 = new BookVo("서양미술사", 50000);
-	
+
 	private static CartVo mockCartVo01 = new CartVo();
 	private static CartVo mockCartVo02 = new CartVo();
 	
 	private static OrderVo mockOrderVo = new OrderVo();
-	
+
 	private static OrderBookVo mockOrderBookVo01 = new OrderBookVo();
 	private static OrderBookVo mockOrderBookVo02 = new OrderBookVo();
-	
+
 	private static UserDao userDao = new UserDao();
 	private static CategoryDao categoryDao = new CategoryDao();
 	private static BookDao bookDao = new BookDao();
@@ -56,7 +56,6 @@ public class BookMallTest {
 	@BeforeAll
 	public static void setUp() {
 		// 사용자 추가(2명)
-		// 여기도 그렇고 getno 모두 마찬가지 last_insert_id(가장 최근에 사용된 insert문 항목의 AI) 사용 필요
 		userDao.insert(mockUserVo01);
 		userDao.insert(mockUserVo02);
 		
@@ -132,7 +131,6 @@ public class BookMallTest {
 	@Test
 	public void testOrder() {
 		OrderVo vo = null;
-		// no 아닌 id라고 생각
 		vo = orderDao.findByNoAndUserNo(1234567L, mockUserVo01.getNo());
 		assertNull(vo);		
 		vo = orderDao.findByNoAndUserNo(mockOrderVo.getNo(), mockUserVo01.getNo());
@@ -159,7 +157,7 @@ public class BookMallTest {
 		assertEquals(mockOrderBookVo02.getBookNo(), list.get(1).getBookNo());
 		assertEquals(mockBookVo02.getTitle(), list.get(1).getBookTitle());		
 	}
-	
+
 	@AfterAll
 	public static void cleanUp() {
 		//주문책

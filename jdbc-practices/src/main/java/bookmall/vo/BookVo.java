@@ -4,7 +4,7 @@ public class BookVo {
 	private Long no;
 	private String title;
 	private Long price;
-	private Long categoryno;
+	private Long category_no;
 
 	public BookVo(String title, long price) {
 		this.title = title;
@@ -14,8 +14,8 @@ public class BookVo {
 	public BookVo() {
 	}
 
-	public void setCategoryNo(Long categoryno) {
-		this.categoryno = categoryno;
+	public void setCategoryNo(Long category_no) {
+		this.category_no = category_no;
 	}
 
 
@@ -34,8 +34,8 @@ public class BookVo {
 	}
 
 
-	public Long getCategoryno() {
-		return categoryno;
+	public Long getCategoryNo() {
+		return category_no;
 	}
 
 
@@ -53,10 +53,6 @@ public class BookVo {
 		this.price = price;
 	}
 
-
-	public void setCategoryno(Long categoryno) {
-		this.categoryno = categoryno;
-	}
 
 
 }

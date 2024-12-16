@@ -8,197 +8,190 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import bookmall.vo.CartVo;
 import bookmall.vo.OrderBookVo;
 import bookmall.vo.OrderVo;
 
 
 public class OrderDao {
 
-	public void insert(OrderVo vo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+	public int insert(OrderVo vo) {
+		int count = 0;
 
-		try {
-			conn = getConnection();
-
-			String sql = " insert" + "   into orders" + " values (null, ?, ?, ?, ?)";
-			pstmt = conn.prepareStatement(sql);
-
-			pstmt.setString(1, vo.getNumber());
-			pstmt.setString(2, vo.getName());
-			pstmt.setString(3, vo.getStatus());
-			pstmt.setLong(4, vo.getPayment());
-			pstmt.setString(5, vo.getShipping());
-			pstmt.setLong(6, vo.getUserno());
-			
-
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-
-	public void insertBook(OrderBookVo vo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-
-		try {
-			conn = getConnection();
-
-			String sql = " insert" + "   into orders" + " values (null, ?, ?, ?, ?)";
-			pstmt = conn.prepareStatement(sql);
-
-			pstmt.setString(1, vo.getTitle());
-			pstmt.setLong(2, vo.getQuantity());
-			pstmt.setLong(3, vo.getPrice());
-			pstmt.setLong(4, vo.getBookNo());
-			pstmt.setLong(5, vo.getOrderNo());
-			
-
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	
-	public void deleteByNo(long no) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		
-		try {
-			conn = getConnection();
-		
-			String sql =
-				"delete" + 
-				"  from orders" +
-				" where no = ?";			
-			pstmt = conn.prepareStatement(sql);
-			
-			pstmt.setLong(1, no);
-			
-			
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	// 뭐냐 이거
-	public void deleteBooksByNo(long no) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		
-		try {
-			conn = getConnection();
-		
-			String sql =
-				"delete" + 
-				"  from orders_book" +
-				" where no = ?";			
-			pstmt = conn.prepareStatement(sql);
-			
-			pstmt.setLong(1, no);
-			
-			
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	
-
-	public List<CartVo> findBooksByNoAndUserNo(Long no, Long userno) {
-		List<CartVo> result = new ArrayList<>();
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
-		try {
-			conn = getConnection();
-
-			String sql =
-				"select id, userno" +
-				"  from cart" +
-				" where no = ? and userno = ?";
-			pstmt = conn.prepareStatement(sql);
-			
-			rs = pstmt.executeQuery();
-			pstmt.setLong(1, no);
-			pstmt.setLong(2, userno);
-			
-			
-			while(rs.next()) {
-				Long userno = rs.getLong(1);
+		try (
+				Connection conn = getConnection();
+				PreparedStatement pstmt1 = conn.prepareStatement(
+						"insert into orders (number, name, status, payment, shipping, user_no) "
+								+ "select ?, a.name, ?, ?, ?, ? "
+								+ "from user a "
+								+ "where a.no = ?");
+				PreparedStatement pstmt2 = conn.prepareStatement("select last_insert_id() from dual");
 				
-				CartVo vo = new CartVo();
-				vo.setUserNo(userno);
+		) {
+
+			pstmt1.setString(1, vo.getNumber());
+			pstmt1.setString(2, vo.getStatus());
+			pstmt1.setLong(3, vo.getPayment());
+			pstmt1.setString(4, vo.getShipping());
+			pstmt1.setLong(5, vo.getUserno());
+			pstmt1.setLong(6, vo.getUserno());
+
+			count = pstmt1.executeUpdate();
+
+			ResultSet rs = pstmt2.executeQuery();
+			vo.setNo(rs.next() ? rs.getLong(1) : null);
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println("order error1:" + e);
+		}
+
+		return count;
+	}
+	
+	public int insertBook(OrderBookVo vo) {
+		int count = 0;
+
+		try (
+				Connection conn = getConnection();
+				PreparedStatement pstmt1 = conn.prepareStatement(
+						"insert into orders_book (title, quantity, price, book_no, order_no) "
+						+ "select a.title, ?, ?, ?, ? "
+						+ "from book a "
+						+ "where a.no = ?");
+				
+				PreparedStatement pstmt2 = conn.prepareStatement("select last_insert_id() from dual");
+		) {			
+			pstmt1.setLong(1, vo.getQuantity());
+			pstmt1.setLong(2, vo.getPrice());
+			pstmt1.setLong(3, vo.getBookNo());
+			pstmt1.setLong(4, vo.getOrderNo());
+			pstmt1.setLong(5, vo.getBookNo());
+			
+
+			count = pstmt1.executeUpdate();
+
+			ResultSet rs = pstmt2.executeQuery();
+			vo.setNo(rs.next() ? rs.getLong(1) : null);
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println("order error2:" + e);
+		}
+
+		return count;
+	}
+
+	public int deleteByNo(Long no) {
+		int count = 0;
+		
+		try (
+			Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement("delete from orders where no =?");
+		) {
+			pstmt.setLong(1, no);
+			count = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("order error3:" + e);
+		}
+		
+		return count;	
+	}	
+	
+
+	public int deleteBooksByNo(Long order_no) {
+		int count = 0;
+		
+		try (
+			Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement("delete from orders_book where order_no =?");
+		) {
+			pstmt.setLong(1, order_no);
+			count = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("order error4:" + e);
+		}
+		
+		return count;	
+	}	
+	
+	
+	public List<OrderBookVo> findBooksByNoAndUserNo(Long No, Long user_no) {
+		List<OrderBookVo> result = new ArrayList<>();
+		
+		try (
+			Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(
+					"select a.no, title, quantity, price, book_no, order_no "
+					+ "from orders_book a join orders b on a.order_no = b.no " 
+				    + "where a.order_no = ? and b.user_no = ? ");
+		) {
+			pstmt.setLong(1, No);
+			pstmt.setLong(2, user_no);
+			
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				Long no = rs.getLong(1);
+				String title = rs.getString(2);
+				Long quantity = rs.getLong(3);
+				Long price = rs.getLong(4);
+				Long book_no = rs.getLong(5);
+				Long order_no = rs.getLong(6);
+			
+				
+				OrderBookVo vo = new OrderBookVo();
+				vo.setNo(no);
+				vo.setBookTitle(title);
+				vo.setQuantity(quantity);
+				vo.setPrice(price);
+				vo.setBookNo(book_no);
+				vo.setOrderNo(order_no);
 				
 				result.add(vo);
 			}
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if(rs != null) {
-					rs.close();
-				}
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			rs.close();
+		} catch(SQLException e) {
+			System.out.println("order error5:" + e);
 		}
 		
-		return result;		
-	}
+		return result;
+	} 
+	
+	public OrderVo findByNoAndUserNo(Long No, Long user_No) {
+		OrderVo vo = null;
+		
+		try (
+			Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement("select no, number, name, status, payment, shipping, user_no from orders where no = ? and user_no = ? order by no desc");
+		) {
+			pstmt.setLong(1, No);
+			pstmt.setLong(2, user_No);
+			ResultSet rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				Long no = rs.getLong(1);
+				String number = rs.getString(2);
+				String name = rs.getString(3);
+				String status = rs.getString(4);
+				Long payment = rs.getLong(5);
+				String shipping = rs.getString(6);
+				Long user_no = rs.getLong(7);
+				
+				vo = new OrderVo();
+				vo.setNo(no);
+				vo.setNumber(number);
+				vo.setName(name);
+				vo.setStatus(status);
+				vo.setPayment(payment);
+				vo.setShipping(shipping);
+				vo.setUserNo(user_no);
+				
+			}
+			rs.close();
+		} catch(SQLException e) {
+			System.out.println("order error6:" + e);
+		}
+		
+		return vo;
+	} 
+	
 	
 	private Connection getConnection() throws SQLException {
 		Connection conn = null;
@@ -206,12 +199,14 @@ public class OrderDao {
 		try {
 			Class.forName("org.mariadb.jdbc.Driver");
 
-			String url = "jdbc:mariadb://192.168.35.57:3306/webdb";
-			conn = DriverManager.getConnection(url, "webdb", "webdb");
+			String url = "jdbc:mariadb://192.168.35.241:3306/bookmall";
+			conn = DriverManager.getConnection(url, "bookmall", "bookmall");
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패:" + e);
 		}
 
 		return conn;
 	}
+
+
 }

@@ -7,7 +7,7 @@ public class OrderVo {
 	private String status;
 	private Long payment;
 	private String shipping;
-	private Long userno;
+	private Long user_no;
 
 	public OrderVo() {
 	}
@@ -52,8 +52,8 @@ public class OrderVo {
 		this.payment = payment;
 	}
 
-	public void setUserNo(Long userno) {
-		this.userno = userno;
+	public void setUserNo(Long user_no) {
+		this.user_no = user_no;
 	}
 
 	public String getStatus() {
@@ -69,7 +69,7 @@ public class OrderVo {
 	}
 
 	public Long getUserno() {
-		return userno;
+		return user_no;
 	}
 	
 }

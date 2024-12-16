@@ -3,77 +3,52 @@ package bookmall.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import bookmall.vo.BookVo;
 
-
 public class BookDao {
 
-	public void insert(BookVo vo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+	public int insert(BookVo vo) {
+		int count = 0;
 
-		try {
-			conn = getConnection();
+		try (
+				Connection conn = getConnection();
+				PreparedStatement pstmt1 = conn.prepareStatement("insert into book values (null, ?, ?, ?)");
+				PreparedStatement pstmt2 = conn.prepareStatement("select last_insert_id() from dual");
+		) {
+			pstmt1.setString(1, vo.getTitle());
+			pstmt1.setLong(2, vo.getPrice());
+			pstmt1.setLong(3, vo.getCategoryNo());
 
-			String sql = " insert" + "   into book" + " values (null, ?, ?, ?, ?)";
-			pstmt = conn.prepareStatement(sql);
+			count = pstmt1.executeUpdate();
 
-			pstmt.setString(1, vo.getTitle());
-			pstmt.setLong(2, vo.getPrice());
-			pstmt.setLong(3, vo.getCategoryno());
-			pstmt.setLong(4, vo.getCategoryno());
-
+			ResultSet rs = pstmt2.executeQuery();
+			vo.setNo(rs.next() ? rs.getLong(1) : null);
+			rs.close();
 		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			System.out.println("book error1:" + e);
 		}
+
+		return count;
 	}
-	
-	public void deleteByNo(long no) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+
+	public int deleteByNo(Long no) {
+		int count = 0;
 		
-		try {
-			conn = getConnection();
-		
-			String sql =
-				"delete" + 
-				"  from book" +
-				" where no = ?";			
-			pstmt = conn.prepareStatement(sql);
-			
-			rs = pstmt.executeQuery();
-			
+		try (
+			Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement("delete from book where no = ?");
+		) {
 			pstmt.setLong(1, no);
-			
-			
+			count = pstmt.executeUpdate();
 		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			System.out.println("book error2:" + e);
 		}
-	}
+		
+		return count;	
+	}	
 
 	private Connection getConnection() throws SQLException {
 		Connection conn = null;
@@ -81,8 +56,8 @@ public class BookDao {
 		try {
 			Class.forName("org.mariadb.jdbc.Driver");
 
-			String url = "jdbc:mariadb://192.168.35.57:3306/webdb";
-			conn = DriverManager.getConnection(url, "webdb", "webdb");
+			String url = "jdbc:mariadb://192.168.35.241:3306/bookmall";
+			conn = DriverManager.getConnection(url, "bookmall", "bookmall");
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패:" + e);
 		}

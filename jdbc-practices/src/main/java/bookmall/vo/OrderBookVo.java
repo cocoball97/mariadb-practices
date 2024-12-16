@@ -5,15 +5,12 @@ public class OrderBookVo {
 	private String title;
 	private Long quantity;
 	private Long price;
-	private Long bookno;
-	private Long orderno;
+	private Long book_no;
+	private Long order_no;
 
 	public OrderBookVo() {
 	}
 	
-	public void setQuantity(long quantity) {
-		this.quantity = Long.valueOf(quantity);;
-	}
 	
 	public void setPrice(long price) {
 		this.price = Long.valueOf(price);
@@ -23,7 +20,7 @@ public class OrderBookVo {
 		return no;
 	}
 
-	public String getTitle() {
+	public String getBookTitle() {
 		return title;
 	}
 
@@ -32,30 +29,30 @@ public class OrderBookVo {
 	}
 
 	public Long getBookNo() {
-		return bookno;
+		return book_no;
 	}
 
-	public void setBookNo(Long bookno) {
-		this.bookno = bookno;
+	public void setBookNo(Long book_no) {
+		this.book_no = book_no;
 	}
 
 	public Long getOrderNo() {
-		return orderno;
+		return order_no;
 	}
 
-	public void setOrderNo(Long orderno) {
-		this.orderno = orderno;
+	public void setOrderNo(Long order_no) {
+		this.order_no = order_no;
 	}
 
 	public void setNo(Long no) {
 		this.no = no;
 	}
 
-	public void setTitle(String title) {
+	public void setBookTitle(String title) {
 		this.title = title;
 	}
 
-	public void setQuantity(Long quantity) {
+	public void setQuantity(long quantity) {
 		this.quantity = quantity;
 	}
 
