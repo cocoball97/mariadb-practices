@@ -27,7 +27,6 @@ public class OrderDao {
 				PreparedStatement pstmt2 = conn.prepareStatement("select last_insert_id() from dual");
 				
 		) {
-
 			pstmt1.setString(1, vo.getNumber());
 			pstmt1.setString(2, vo.getStatus());
 			pstmt1.setLong(3, vo.getPayment());
@@ -54,9 +53,10 @@ public class OrderDao {
 				Connection conn = getConnection();
 				PreparedStatement pstmt1 = conn.prepareStatement(
 						"insert into orders_book (title, quantity, price, book_no, order_no) "
-						+ "select a.title, ?, ?, ?, ? "
-						+ "from book a "
-						+ "where a.no = ?");
+								+ "select a.title, ?, ?, ?, ? "
+								+ "from book a "
+								+ "where a.no = ?"
+			);
 				
 				PreparedStatement pstmt2 = conn.prepareStatement("select last_insert_id() from dual");
 		) {			
@@ -69,9 +69,6 @@ public class OrderDao {
 
 			count = pstmt1.executeUpdate();
 
-			ResultSet rs = pstmt2.executeQuery();
-			vo.setNo(rs.next() ? rs.getLong(1) : null);
-			rs.close();
 		} catch (SQLException e) {
 			System.out.println("order error2:" + e);
 		}
@@ -119,7 +116,7 @@ public class OrderDao {
 		try (
 			Connection conn = getConnection();
 			PreparedStatement pstmt = conn.prepareStatement(
-					"select a.no, title, quantity, price, book_no, order_no "
+					"select title, quantity, price, book_no, order_no "
 					+ "from orders_book a join orders b on a.order_no = b.no " 
 				    + "where a.order_no = ? and b.user_no = ? ");
 		) {
@@ -128,16 +125,14 @@ public class OrderDao {
 			
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
-				Long no = rs.getLong(1);
-				String title = rs.getString(2);
-				Long quantity = rs.getLong(3);
-				Long price = rs.getLong(4);
-				Long book_no = rs.getLong(5);
-				Long order_no = rs.getLong(6);
+				String title = rs.getString(1);
+				Long quantity = rs.getLong(2);
+				Long price = rs.getLong(3);
+				Long book_no = rs.getLong(4);
+				Long order_no = rs.getLong(5);
 			
 				
 				OrderBookVo vo = new OrderBookVo();
-				vo.setNo(no);
 				vo.setBookTitle(title);
 				vo.setQuantity(quantity);
 				vo.setPrice(price);
@@ -199,7 +194,7 @@ public class OrderDao {
 		try {
 			Class.forName("org.mariadb.jdbc.Driver");
 
-			String url = "jdbc:mariadb://192.168.35.241:3306/bookmall";
+			String url = "jdbc:mariadb://192.168.35.165:3306/bookmall";
 			conn = DriverManager.getConnection(url, "bookmall", "bookmall");
 		} catch (ClassNotFoundException e) {
 			System.out.println("드라이버 로딩 실패:" + e);

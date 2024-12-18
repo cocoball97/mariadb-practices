@@ -1,7 +1,6 @@
 package bookmall.vo;
 
 public class OrderBookVo {
-	private Long no;
 	private String title;
 	private Long quantity;
 	private Long price;
@@ -14,10 +13,6 @@ public class OrderBookVo {
 	
 	public void setPrice(long price) {
 		this.price = Long.valueOf(price);
-	}
-
-	public Long getNo() {
-		return no;
 	}
 
 	public String getBookTitle() {
@@ -42,10 +37,6 @@ public class OrderBookVo {
 
 	public void setOrderNo(Long order_no) {
 		this.order_no = order_no;
-	}
-
-	public void setNo(Long no) {
-		this.no = no;
 	}
 
 	public void setBookTitle(String title) {
